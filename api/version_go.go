@@ -65,53 +65,54 @@ type GoParams struct {
 
 // Handler serverless-functions 函数暴露
 func Handler(w http.ResponseWriter, r *http.Request) {
-	// if err := Connect(); err != nil {
-	// 	response, _ := json.Marshal(&List{
-	// 		Code:    200,
-	// 		Message: err.Error(),
-	// 	})
-	// 	w.Header().Set("Content-Type", "application/json;charset=utf-8")
-	// 	w.Header().Set("Content-Length", strconv.Itoa(len(string(response))))
-	// 	_, _ = w.Write(response)
-	// 	return
-	// }
-	// defer engine.Close()
-	// goVersion := r.URL.Query().Get("version")
-	// platform := r.URL.Query().Get("os")
-	// arch := r.URL.Query().Get("arch")
-	// kind := r.URL.Query().Get("kind")
-	// var stable bool
-	// if r.URL.Query().Get("stable") == "true" {
-	// 	stable = true
-	// }
-	// var params = &GoParams{
-	// 	Version:  goVersion,
-	// 	Platform: platform,
-	// 	Arch:     arch,
-	// 	Kind:     kind,
-	// 	Stable:   stable,
-	// }
-	// data, err := Fetch(params)
-	// if err != nil {
-	// 	response, _ := json.Marshal(&List{
-	// 		Code:    200,
-	// 		Message: err.Error(),
-	// 	})
-	// 	w.Header().Set("Content-Type", "application/json;charset=utf-8")
-	// 	w.Header().Set("Content-Length", strconv.Itoa(len(string(response))))
-	// 	_, _ = w.Write(response)
-	// 	return
-	// }
-	// response, _ := json.Marshal(&List{
-	// 	Code:    200,
-	// 	Message: "ok",
-	// 	Count:   len(data),
-	// 	Data:    data,
-	// })
-	// w.Header().Set("Content-Type", "application/json;charset=utf-8")
-	// w.Header().Set("Content-Length", strconv.Itoa(len(string(response))))
-	// _, _ = w.Write(response)
 	_, _ = w.Write([]byte("test"))
+	return
+	if err := Connect(); err != nil {
+		response, _ := json.Marshal(&List{
+			Code:    200,
+			Message: err.Error(),
+		})
+		w.Header().Set("Content-Type", "application/json;charset=utf-8")
+		w.Header().Set("Content-Length", strconv.Itoa(len(string(response))))
+		_, _ = w.Write(response)
+		return
+	}
+	defer engine.Close()
+	goVersion := r.URL.Query().Get("version")
+	platform := r.URL.Query().Get("os")
+	arch := r.URL.Query().Get("arch")
+	kind := r.URL.Query().Get("kind")
+	var stable bool
+	if r.URL.Query().Get("stable") == "true" {
+		stable = true
+	}
+	var params = &GoParams{
+		Version:  goVersion,
+		Platform: platform,
+		Arch:     arch,
+		Kind:     kind,
+		Stable:   stable,
+	}
+	data, err := Fetch(params)
+	if err != nil {
+		response, _ := json.Marshal(&List{
+			Code:    200,
+			Message: err.Error(),
+		})
+		w.Header().Set("Content-Type", "application/json;charset=utf-8")
+		w.Header().Set("Content-Length", strconv.Itoa(len(string(response))))
+		_, _ = w.Write(response)
+		return
+	}
+	response, _ := json.Marshal(&List{
+		Code:    200,
+		Message: "ok",
+		Count:   len(data),
+		Data:    data,
+	})
+	w.Header().Set("Content-Type", "application/json;charset=utf-8")
+	w.Header().Set("Content-Length", strconv.Itoa(len(string(response))))
+	_, _ = w.Write(response)
 }
 
 // Fetch 查询数据
