@@ -54,6 +54,8 @@ type GoBranch struct {
 	CheckSum    string `gorm:"size:64;not null" json:"check_sum"` //校检
 }
 
+var count int
+
 // GoParams 接收参数
 type GoParams struct {
 	Version  string `form:"version"` //版本号
@@ -65,7 +67,9 @@ type GoParams struct {
 
 // Handler serverless-functions 函数暴露
 func Handler(w http.ResponseWriter, r *http.Request) {
-	_, _ = w.Write([]byte("test"))
+	str := strconv.Itoa(count)
+	count++
+	_, _ = w.Write([]byte("test:"+str))
 	return
 	if err := Connect(); err != nil {
 		response, _ := json.Marshal(&List{
