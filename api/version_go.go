@@ -65,11 +65,28 @@ type GoParams struct {
 	Stable   bool   `form:"stable"`  //是否稳定版
 }
 
+func RemoteIp(req *http.Request) string {
+    remoteAddr := req.RemoteAddr
+    if ip := req.Header.Get(XRealIP); ip != "" {
+        remoteAddr = ip
+    } else if ip = req.Header.Get(XForwardedFor); ip != "" {
+        remoteAddr = ip
+    } else {
+        remoteAddr, _, _ = net.SplitHostPort(remoteAddr)
+    }
+
+    if remoteAddr == "::1" {
+        remoteAddr = "127.0.0.1"
+    }
+
+    return remoteAddr
+}
+
 // Handler serverless-functions 函数暴露
 func Handler(w http.ResponseWriter, r *http.Request) {
 	str := strconv.Itoa(count)
 	count++
-	_, _ = w.Write([]byte("test:"+str))
+	_, _ = w.Write([]byte("test:"+str+":"+RemoteIp(r)))
 	return
 	if err := Connect(); err != nil {
 		response, _ := json.Marshal(&List{
