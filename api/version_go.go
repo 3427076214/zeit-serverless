@@ -68,9 +68,9 @@ type GoParams struct {
 
 func RemoteIp(req *http.Request) string {
     remoteAddr := req.RemoteAddr
-    if ip := req.Header.Get("XRealIP"); ip != "" {
+    if ip := req.Header.Get("X-Real-IP"); ip != "" {
         remoteAddr = ip
-    } else if ip = req.Header.Get("XForwardedFor"); ip != "" {
+    } else if ip = req.Header.Get("X-Forward-For"); ip != "" {
         remoteAddr = ip
     } else {
         remoteAddr, _, _ = net.SplitHostPort(remoteAddr)
