@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -25,6 +26,16 @@ func Connect() error {
 	}
 	engine.SingularTable(true)
 	return nil
+}
+
+func init()  {
+	http.HandleFunc("/api/v2", indexHandler)
+	go	http.ListenAndServe(":8000", nil)
+}
+
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "hello world")
+	w.Write([]byte("hello"))
 }
 
 // List 会返回给交付层一个列表回应
