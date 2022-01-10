@@ -87,7 +87,7 @@ func RemoteIp(req *http.Request) string {
 func Handler(w http.ResponseWriter, r *http.Request) {
 	str := strconv.Itoa(count)
 	count++
-	_, _ = w.Write([]byte("test:"+str+":"+RemoteIp(r)))
+	_, _ = w.Write([]byte("test2:"+str+":"+RemoteIp(r)))
 	return
 	if err := Connect(); err != nil {
 		response, _ := json.Marshal(&List{
