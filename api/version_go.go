@@ -1,16 +1,13 @@
-package handler
+package main
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
-	"net/http"
-	"reflect"
-	"strconv"
 	"net"
+	"net/http"
+	"strconv"
 
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	//_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
 var (
@@ -29,8 +26,19 @@ func Connect() error {
 }
 
 func init()  {
-	http.HandleFunc("/api/v2", indexHandler)
-	go	http.ListenAndServe(":8000", nil)
+	//http.HandleFunc("/api/v2", indexHandler)
+	//go	http.ListenAndServe(":8000", nil)
+	// http.HandleFunc("/", handler2)
+	//c := &http.Server{
+	//	Addr: ":8080",
+	//}
+	//c.ListenAndServe()
+	//http.ListenAndServe("127.0.0.1:8000", nil)
+
+	//
+	//select {
+	//
+	//}
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -100,93 +108,93 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	count++
 	_, _ = w.Write([]byte("test2:"+str+":"+RemoteIp(r)+":"+	r.RemoteAddr))
 	return
-	if err := Connect(); err != nil {
-		response, _ := json.Marshal(&List{
-			Code:    200,
-			Message: err.Error(),
-		})
-		w.Header().Set("Content-Type", "application/json;charset=utf-8")
-		w.Header().Set("Content-Length", strconv.Itoa(len(string(response))))
-		_, _ = w.Write(response)
-		return
-	}
-	defer engine.Close()
-	goVersion := r.URL.Query().Get("version")
-	platform := r.URL.Query().Get("os")
-	arch := r.URL.Query().Get("arch")
-	kind := r.URL.Query().Get("kind")
-	var stable bool
-	if r.URL.Query().Get("stable") == "true" {
-		stable = true
-	}
-	var params = &GoParams{
-		Version:  goVersion,
-		Platform: platform,
-		Arch:     arch,
-		Kind:     kind,
-		Stable:   stable,
-	}
-	data, err := Fetch(params)
-	if err != nil {
-		response, _ := json.Marshal(&List{
-			Code:    200,
-			Message: err.Error(),
-		})
-		w.Header().Set("Content-Type", "application/json;charset=utf-8")
-		w.Header().Set("Content-Length", strconv.Itoa(len(string(response))))
-		_, _ = w.Write(response)
-		return
-	}
-	response, _ := json.Marshal(&List{
-		Code:    200,
-		Message: "ok",
-		Count:   len(data),
-		Data:    data,
-	})
-	w.Header().Set("Content-Type", "application/json;charset=utf-8")
-	w.Header().Set("Content-Length", strconv.Itoa(len(string(response))))
-	_, _ = w.Write(response)
+	//if err := Connect(); err != nil {
+	//	response, _ := json.Marshal(&List{
+	//		Code:    200,
+	//		Message: err.Error(),
+	//	})
+	//	w.Header().Set("Content-Type", "application/json;charset=utf-8")
+	//	w.Header().Set("Content-Length", strconv.Itoa(len(string(response))))
+	//	_, _ = w.Write(response)
+	//	return
+	//}
+	//defer engine.Close()
+	//goVersion := r.URL.Query().Get("version")
+	//platform := r.URL.Query().Get("os")
+	//arch := r.URL.Query().Get("arch")
+	//kind := r.URL.Query().Get("kind")
+	//var stable bool
+	//if r.URL.Query().Get("stable") == "true" {
+	//	stable = true
+	//}
+	//var params = &GoParams{
+	//	Version:  goVersion,
+	//	Platform: platform,
+	//	Arch:     arch,
+	//	Kind:     kind,
+	//	Stable:   stable,
+	//}
+	//data, err := Fetch(params)
+	//if err != nil {
+	//	response, _ := json.Marshal(&List{
+	//		Code:    200,
+	//		Message: err.Error(),
+	//	})
+	//	w.Header().Set("Content-Type", "application/json;charset=utf-8")
+	//	w.Header().Set("Content-Length", strconv.Itoa(len(string(response))))
+	//	_, _ = w.Write(response)
+	//	return
+	//}
+	//response, _ := json.Marshal(&List{
+	//	Code:    200,
+	//	Message: "ok",
+	//	Count:   len(data),
+	//	Data:    data,
+	//})
+	//w.Header().Set("Content-Type", "application/json;charset=utf-8")
+	//w.Header().Set("Content-Length", strconv.Itoa(len(string(response))))
+	//_, _ = w.Write(response)
 }
 
-// Fetch 查询数据
-func Fetch(params *GoParams) ([]GoVersion, error) {
-	var list []GoVersion
-	if reflect.DeepEqual(params, &GoParams{}) {
-		err := engine.Preload("List").Find(&list).Error
-		return list, err
-	}
-	var err error
-	if params.Version != "" && params.Stable {
-		//筛选版本
-		err = engine.Where("version = ? AND stable = ?", params.Version, params.Stable).Find(&list).Error
-	} else if params.Version != "" {
-		err = engine.Where("version = ? ", params.Version).Find(&list).Error
-	} else if params.Stable {
-		err = engine.Where("stable = ?", params.Stable).Find(&list).Error
-	} else {
-		//不筛选版本
-		err = engine.Find(&list).Error
-	}
-	if err != nil {
-		return nil, err
-	}
-	//数据项为空
-	if len(list) == 0 {
-		return nil, errors.New("Couldn't find Version:" + params.Version)
-	}
-	//从版本中选择下属分支
-	var filter = make(map[string]interface{}, 4)
-	if params.Platform != "" {
-		filter["platform"] = params.Platform
-	}
-	if params.Kind != "" {
-		filter["kind"] = params.Kind
-	}
-	if params.Arch != "" {
-		filter["arch"] = params.Arch
-	}
-	for i := 0; i < len(list); i++ {
-		engine.Where(filter).Model(&list[i]).Related(&list[i].List, "go_branch")
-	}
-	return list, nil
-}
+//// Fetch 查询数据
+//func Fetch(params *GoParams) ([]GoVersion, error) {
+//	var list []GoVersion
+//	if reflect.DeepEqual(params, &GoParams{}) {
+//		err := engine.Preload("List").Find(&list).Error
+//		return list, err
+//	}
+//	var err error
+//	if params.Version != "" && params.Stable {
+//		//筛选版本
+//		err = engine.Where("version = ? AND stable = ?", params.Version, params.Stable).Find(&list).Error
+//	} else if params.Version != "" {
+//		err = engine.Where("version = ? ", params.Version).Find(&list).Error
+//	} else if params.Stable {
+//		err = engine.Where("stable = ?", params.Stable).Find(&list).Error
+//	} else {
+//		//不筛选版本
+//		err = engine.Find(&list).Error
+//	}
+//	if err != nil {
+//		return nil, err
+//	}
+//	//数据项为空
+//	if len(list) == 0 {
+//		return nil, errors.New("Couldn't find Version:" + params.Version)
+//	}
+//	//从版本中选择下属分支
+//	var filter = make(map[string]interface{}, 4)
+//	if params.Platform != "" {
+//		filter["platform"] = params.Platform
+//	}
+//	if params.Kind != "" {
+//		filter["kind"] = params.Kind
+//	}
+//	if params.Arch != "" {
+//		filter["arch"] = params.Arch
+//	}
+//	for i := 0; i < len(list); i++ {
+//		engine.Where(filter).Model(&list[i]).Related(&list[i].List, "go_branch")
+//	}
+//	return list, nil
+//}
