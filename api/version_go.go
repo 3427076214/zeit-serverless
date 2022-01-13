@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"fmt"
@@ -25,7 +25,7 @@ func Connect() error {
 	return nil
 }
 
-func main()  {
+func main2()  {
 	//http.HandleFunc("/api/v2", indexHandler)
 	//go	http.ListenAndServe(":8000", nil)
 	http.HandleFunc("/", Handler)
