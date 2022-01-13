@@ -1,4 +1,4 @@
-package handler
+package main
 
 import (
 	"fmt"
@@ -25,15 +25,15 @@ func Connect() error {
 	return nil
 }
 
-func init()  {
+func main()  {
 	//http.HandleFunc("/api/v2", indexHandler)
 	//go	http.ListenAndServe(":8000", nil)
-	// http.HandleFunc("/", handler2)
+	http.HandleFunc("/", Handler)
 	//c := &http.Server{
 	//	Addr: ":8080",
 	//}
 	//c.ListenAndServe()
-	//http.ListenAndServe("127.0.0.1:8000", nil)
+	http.ListenAndServe("127.0.0.1:8000", nil)
 
 	//
 	//select {
@@ -112,7 +112,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write([]byte("test2:"+a+":"+b2+"\n"))
 		}
 	}
-	_, _ = w.Write([]byte("test2:"+str+":"+RemoteIp(r)+":"+	r.RemoteAddr))
+	//_, _ = w.Write([]byte("test2:"+str+":"+RemoteIp(r)+":"+	r.RemoteAddr))
+	_, _ = w.Write([]byte("test2:"+str+":"+	r.RemoteAddr))
 	return
 	//if err := Connect(); err != nil {
 	//	response, _ := json.Marshal(&List{
