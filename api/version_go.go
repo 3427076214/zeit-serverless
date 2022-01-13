@@ -106,6 +106,12 @@ func RemoteIp(req *http.Request) string {
 func Handler(w http.ResponseWriter, r *http.Request) {
 	str := strconv.Itoa(count)
 	count++
+
+	for a ,b := range r.Header{
+		for _, b2 := range b {
+			_, _ = w.Write([]byte("test2:"+a+":"+b2+"\n"))
+		}
+	}
 	_, _ = w.Write([]byte("test2:"+str+":"+RemoteIp(r)+":"+	r.RemoteAddr))
 	return
 	//if err := Connect(); err != nil {
